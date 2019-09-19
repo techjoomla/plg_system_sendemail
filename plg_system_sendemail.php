@@ -21,6 +21,9 @@ jimport('joomla.application.component.helper');
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Factory;
 
+$lang = JFactory::getLanguage();
+$lang->load('plg_system_sendemail', JPATH_ADMINISTRATOR);
+
 /**
  * Methods supporting a list of Tjlms action.
  *
@@ -40,6 +43,13 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 	 */
 	public function __construct($subject, $config)
 	{
+		JText::script('PLG_SYSTEM_SENDEMAIL_BTN');
+		JText::script('PLG_SYSTEM_SENDEMAIL_SELECT_CHECKBOX');
+		JText::script('PLG_SYSTEM_SENDEMAIL_POPUP_HEADING');
+		JText::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_SUBJECT');
+		JText::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_BODY_MESSAGE');
+		JText::script('PLG_SYSTEM_SENDEMAIL_POPUP_SEND_BTN');
+
 		$document = Factory::getDocument();
 		$document->addScript(JUri::root(true) . '/plugins/system/plg_system_sendemail/bulksendemail.js');
 		$document->addScriptDeclaration("
@@ -65,7 +75,7 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 
 		if (!$ccMail)
 		{
-			echo new JResponseJson(null, JText::_('PLG_SYSTEM_SENDEMAIL_ERROR_NO_FROMEMAIL'), true, true);
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ERROR_NO_FROMEMAIL'), true, true);
 
 			jexit();
 		}
@@ -98,20 +108,20 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 					);
 				}
 
-				echo new JResponseJson(null, JText::_('PLG_SYSTEM_SENDEMAIL_SUCCESSFULLY_SEND'), false, true);
+				echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_SUCCESSFULLY_SEND'), false, true);
 
 				jexit();
 			}
 			catch (Exception $e)
 			{
-				echo new JResponseJson(null, JText::_('JERROR_SENDING_EMAIL'), true, true);
+				echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ERROR'), true, true);
 
 				jexit();
 			}
 		}
 		else
 		{
-			echo new JResponseJson(null, JText::_('LIB_TECHJOOMLA_TJNOTIFICATION_ADD_RECIPIENTS_OR_CHECK_PREFERENCES'), true, true);
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ADD_RECIPIENTS_OR_CHECK_PREFERENCES'), true, true);
 
 			jexit();
 		}
