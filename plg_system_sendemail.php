@@ -66,8 +66,8 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 				}
 			});
 			jQuery(document).ready(function() {
-				tjutilitysendemail.tjTdClass = 'td-sendemail';
-				tjutilitysendemail.tjTableClass = 'report-table';
+				tjutilitysendemail.tjTdClass = '.td-sendemail';
+				tjutilitysendemail.tjTableId = 'report-table';
 				tjutilitysendemail.initialize();
 			});"
 		);

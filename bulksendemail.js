@@ -8,7 +8,7 @@
 
 var tjutilitysendemail = {
     initialize: function() {
-		var isSendEmail = jQuery('body').find('.' + tjutilitysendemail.tjTdClass).length;
+		var isSendEmail = jQuery('body').find(tjutilitysendemail.tjTdClass).length;
 		var isCheckboxes = jQuery('body').find('input[name="cid[]"]').length;
 
 		if (isSendEmail)
@@ -24,10 +24,10 @@ var tjutilitysendemail = {
     },
     addColumn: function()
 	{
-		var tr = document.getElementById(tjutilitysendemail.tjTableClass).tHead.children[0];
+		var tr = document.getElementById(tjutilitysendemail.tjTableId).tHead.children[0];
 		tr.insertCell(0).outerHTML = '<th><input type="checkbox" name="checkall-toggle" value="" class="hasTooltip" title="Check All Items" onclick="Joomla.checkAll(this)"></th>'
 
-		var tblBodyObj = document.getElementById(tjutilitysendemail.tjTableClass).tBodies[0];
+		var tblBodyObj = document.getElementById(tjutilitysendemail.tjTableId).tBodies[0];
 		for (var i=0; i<tblBodyObj.rows.length; i++) {
 			var newCell = tblBodyObj.rows[i].insertCell(0);
 			newCell.innerHTML = '<input type="checkbox" id="cb0" name="cid[]" value="' + i + '" onclick="Joomla.isChecked(this.checked);">'
@@ -126,7 +126,7 @@ var tjutilitysendemail = {
 			var values = new Array();
 			jQuery("#emailsDiv").empty();
 
-			jQuery.each(jQuery("input[name='cid[]']:checked").closest("td").siblings("td." + tjutilitysendemail.tjTdClass), function () {
+			jQuery.each(jQuery("input[name='cid[]']:checked").closest("td").siblings("td" + tjutilitysendemail.tjTdClass), function () {
 				values.push(jQuery(this).text());
 
 				var hiddenEle = "<input readonly type='hidden' name='emails[]' value='" + jQuery(this).text() + "'/>";
