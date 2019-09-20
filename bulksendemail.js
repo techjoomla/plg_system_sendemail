@@ -10,10 +10,16 @@
 var tjutilitysendemail = {
     initialize: function(tableContainer) {
 		var isSendEmail = jQuery('body').find('.td-sendemail').length;
+		var isCheckboxes = jQuery('body').find('input[name="cid[]"]').length;
 
 		if (isSendEmail)
 		{
-			this.addColumn(tableContainer);
+			// If on list view already checkbox are present then avoid the add column function
+			if (!isCheckboxes)
+			{
+				this.addColumn(tableContainer);
+			}
+
 			this.btnSendEmail();
 		}
     },
