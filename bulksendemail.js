@@ -135,6 +135,9 @@ var tjutilitysendemail = {
 				jQuery("#builkEmailModal").find("#emailsDiv").append(hiddenEle);
 			});
 
+			// Create editor field
+			 tinyMCE.execCommand( 'mceAddEditor', false, "email-message");
+
 			// alert(values.join (", "));
 		}
 		catch (err) {
@@ -142,8 +145,14 @@ var tjutilitysendemail = {
 		}
 	},
 	sendEmailToUser: function () {
+
+		jQuery('textarea').each(function (index, ta) {
+			var $ta = jQuery(ta);
+			var emailMessageValue = $ta.val();
+		});
+
 		var emailSubjectValue = jQuery("#email-subject").val();
-		var emailMessageValue = jQuery("#email-message").val();
+		// var emailMessageValue = jQuery("#email-message").val();
 		var invalidCount = 0;
 
 		if (!emailSubjectValue)

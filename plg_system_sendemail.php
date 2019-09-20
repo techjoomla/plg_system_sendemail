@@ -54,8 +54,17 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_SEND_BTN');
 
 		$document = Factory::getDocument();
+		$document->addScript(JUri::root(true) . '/media/editors/tinymce/tinymce.min.js');
 		$document->addScript(JUri::root(true) . '/plugins/system/plg_system_sendemail/bulksendemail.js');
 		$document->addScriptDeclaration("
+			tinymce.init({
+				selector: 'textarea',
+				setup: function (editor) {
+					editor.on('change', function () {
+						tinymce.triggerSave();
+					});
+				}
+			});
 			jQuery(document).ready(function() {
 				tjutilitysendemail.initialize('report-table');
 			});"
@@ -115,7 +124,8 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 						$config->get('fromname'),
 						trim($singleEmail),
 						$emailSubject,
-						$emailBody
+						$emailBody,
+						true
 					);
 				}
 
