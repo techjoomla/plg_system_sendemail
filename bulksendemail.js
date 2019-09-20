@@ -166,14 +166,13 @@ var tjutilitysendemail = {
 		var chunk_size = 5;
 
 		var postData = jQuery("#emailTemplateForm").serializeArray();
-		console.log('postData - ', postData);
 
 		var emailContent = postData.splice(0,2);
 
 		// Remove duplicate values from email array
-		//~ postData = postData.map(JSON.stringify).reverse() // convert to JSON string the array content, then reverse it (to check from end to begining)
-		//~ .filter(function(item, index, postData){ return postData.indexOf(item, index + 1) === -1; }) // check if there is any occurence of the item in whole array
-		//~ .reverse().map(JSON.parse) // revert it to original state
+		postData = postData.map(JSON.stringify).reverse() // convert to JSON string the array content, then reverse it (to check from end to begining)
+		.filter(function(item, index, postData){ return postData.indexOf(item, index + 1) === -1; }) // check if there is any occurence of the item in whole array
+		.reverse().map(JSON.parse) // revert it to original state
 
 		// Chuck of 10 emails
 		var emails = postData.map( function(e,i){
@@ -184,47 +183,43 @@ var tjutilitysendemail = {
 
 		jQuery.each(emails, function (i, batch) {
 			var emailData = batch.concat(emailContent);
-			tjutilitysendemail.ajaxCallSendEmail(emailData, i, batchCount);
+
+			// Call the send email function
+			tjutilitysendemail.tjSendEmail(emailData, i, batchCount);
 		});
-
-		console.log('batchCount - ', emails.length);
 	},
-	ajaxCallSendEmail: function (emailData, index, batchCount) {
-
+	tjSendEmail: function (emailData, index, batchCount) {
 		index ++;
 
-		jQuery.ajax(
-		{
-			type: "POST",
-			url: "index.php?option=com_ajax&plugin=plg_System_Sendemail&format=json",
-			data:emailData,
-			success: function(data)
-			{
-				var response = jQuery.parseJSON(data);
+		var url = "index.php?option=com_ajax&plugin=plg_System_Sendemail&format=json";
 
-				 if (response.success)
-				 {
-					 console.log('index - ', index);
-					 console.log('batchCount batchCount - ', batchCount);
-					if (index == batchCount)
-					{
-						console.log('senddddddd ');
-						jQuery('#preload').hide();
-						jQuery('#builkEmailModal').modal('hide');
+		var promise = jQuery.ajax({url: url, type: 'POST', async:true, data:emailData,dataType: 'json'});
 
-						 // Remove below line removeclass it is temp added
-						 jQuery("div").find('.tjlms-wrapper').addClass("tjBs3");
+		promise.fail(
+			function(response) {
+				console.log('Something went wrong.');
 
-						 Joomla.renderMessages({"success":[response.message]});
-					}
-				}
-				else
+				var errormsg = '<div class="alert alert-error alert-danger"><button type="button" data-dismiss="alert" class="close">×</button><h4 class="alert-heading"></h4><div>' + response.message + '</div></div>';
+				jQuery("#builkEmailModal").find("#errorMessage").append(errormsg);
+				jQuery('#preload').hide();
+			}
+		).done(
+			function(response) {
+				if (index == batchCount)
 				{
-					 var errormsg = '<div class="alert alert-error alert-danger"><button type="button" data-dismiss="alert" class="close">×</button><h4 class="alert-heading"></h4><div>' + response.message + '</div></div>';
-					jQuery("#builkEmailModal").find("#errorMessage").append(errormsg);
 					jQuery('#preload').hide();
+					jQuery('#builkEmailModal').modal('hide');
+
+					 // Remove below line removeclass it is temp added
+					 jQuery("div").find('.tjlms-wrapper').addClass("tjBs3");
+
+					 Joomla.renderMessages({"success":[response.message]});
 				}
 			}
-		});
+		).always(
+			function(response) {
+				// console.log('response always.' , response);
+			}
+		);
 	}
 };

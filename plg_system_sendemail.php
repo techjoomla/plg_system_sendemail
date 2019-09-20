@@ -20,6 +20,9 @@ jimport('joomla.application.component.helper');
 
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Session\Session;
+
+JHtml::_('jquery.token');
 
 $lang = JFactory::getLanguage();
 $lang->load('plg_system_sendemail', JPATH_ADMINISTRATOR);
@@ -43,12 +46,12 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 	 */
 	public function __construct($subject, $config)
 	{
-		JText::script('PLG_SYSTEM_SENDEMAIL_BTN');
-		JText::script('PLG_SYSTEM_SENDEMAIL_SELECT_CHECKBOX');
-		JText::script('PLG_SYSTEM_SENDEMAIL_POPUP_HEADING');
-		JText::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_SUBJECT');
-		JText::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_BODY_MESSAGE');
-		JText::script('PLG_SYSTEM_SENDEMAIL_POPUP_SEND_BTN');
+		Text::script('PLG_SYSTEM_SENDEMAIL_BTN');
+		Text::script('PLG_SYSTEM_SENDEMAIL_SELECT_CHECKBOX');
+		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_HEADING');
+		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_SUBJECT');
+		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_BODY_MESSAGE');
+		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_SEND_BTN');
 
 		$document = Factory::getDocument();
 		$document->addScript(JUri::root(true) . '/plugins/system/plg_system_sendemail/bulksendemail.js');
@@ -69,7 +72,15 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 	 */
 	public function onAjaxplg_System_Sendemail()
 	{
-		$app = JFactory::getApplication();
+		Session::checkToken('post') or die(Text::_('JINVALID_TOKEN_NOTICE'));
+
+		if (!Factory::getUser()->id)
+		{
+			echo new JResponseJson(null, Text::_('JERROR_ALERTNOAUTHOR'), true, true);
+			jexit();
+		}
+
+		$app = Factory::getApplication();
 		$config = Factory::getConfig();
 		$ccMail = $config->get('mailfrom');
 
