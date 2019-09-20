@@ -6,10 +6,9 @@
  * @license    GNU General Public License version 2, or later
  */
 
-
 var tjutilitysendemail = {
-    initialize: function(tableContainer) {
-		var isSendEmail = jQuery('body').find('.td-sendemail').length;
+    initialize: function() {
+		var isSendEmail = jQuery('body').find('.' + tjutilitysendemail.tjTdClass).length;
 		var isCheckboxes = jQuery('body').find('input[name="cid[]"]').length;
 
 		if (isSendEmail)
@@ -17,18 +16,18 @@ var tjutilitysendemail = {
 			// If on list view already checkbox are present then avoid the add column function
 			if (!isCheckboxes)
 			{
-				this.addColumn(tableContainer);
+				this.addColumn();
 			}
 
 			this.btnSendEmail();
 		}
     },
-    addColumn: function(tblId)
+    addColumn: function()
 	{
-		var tr = document.getElementById(tblId).tHead.children[0];
+		var tr = document.getElementById(tjutilitysendemail.tjTableClass).tHead.children[0];
 		tr.insertCell(0).outerHTML = '<th><input type="checkbox" name="checkall-toggle" value="" class="hasTooltip" title="Check All Items" onclick="Joomla.checkAll(this)"></th>'
 
-		var tblBodyObj = document.getElementById(tblId).tBodies[0];
+		var tblBodyObj = document.getElementById(tjutilitysendemail.tjTableClass).tBodies[0];
 		for (var i=0; i<tblBodyObj.rows.length; i++) {
 			var newCell = tblBodyObj.rows[i].insertCell(0);
 			newCell.innerHTML = '<input type="checkbox" id="cb0" name="cid[]" value="' + i + '" onclick="Joomla.isChecked(this.checked);">'
@@ -36,9 +35,8 @@ var tjutilitysendemail = {
 	},
 	btnSendEmail: function () {
 		try {
-			var alertMessage = 'alert("Please select recods");';
 			let btnHtml = '<div class="btn-wrapper" id="tj-sendemail" style="float: right;">';
-					btnHtml += '<button type="button" class="btn btn-primary" id="email-queue-column" data-toggle="modal" data-target="#builkEmailModal" onclick="tjutilitysendemail.openEmailPopup();">';
+					btnHtml += '<button type="button" class="btn btn-primary" id="email-queue-column" data-toggle="modal" data-target="#bulkEmailModal" onclick="tjutilitysendemail.openEmailPopup();">';
 						btnHtml += Joomla.JText._('PLG_SYSTEM_SENDEMAIL_BTN') ;
 					btnHtml += '</button>';
 				btnHtml += '</div>';
@@ -62,7 +60,7 @@ var tjutilitysendemail = {
 			// Remove below line removeclass it is temp added
 			jQuery("div").find('.tjlms-wrapper').removeClass("tjBs3");
 
-			let modelEmail = '<div id="builkEmailModal" class="emailModal modal fade" role="dialog">';
+			var modelEmail = '<div id="bulkEmailModal" class="emailModal modal fade" role="dialog">';
 					modelEmail += '<div class="modal-dialog">';
 						modelEmail += '<div class="modal-content">';
 						modelEmail += '<div id="preload"><img src="http://i.imgur.com/KUJoe.gif"></div>';
@@ -128,11 +126,11 @@ var tjutilitysendemail = {
 			var values = new Array();
 			jQuery("#emailsDiv").empty();
 
-			jQuery.each(jQuery("input[name='cid[]']:checked").closest("td").siblings("td.td-sendemail"), function () {
+			jQuery.each(jQuery("input[name='cid[]']:checked").closest("td").siblings("td." + tjutilitysendemail.tjTdClass), function () {
 				values.push(jQuery(this).text());
 
 				var hiddenEle = "<input readonly type='hidden' name='emails[]' value='" + jQuery(this).text() + "'/>";
-				jQuery("#builkEmailModal").find("#emailsDiv").append(hiddenEle);
+				jQuery("#bulkEmailModal").find("#emailsDiv").append(hiddenEle);
 			});
 
 			// Create editor field
@@ -152,7 +150,7 @@ var tjutilitysendemail = {
 		});
 
 		var emailSubjectValue = jQuery("#email-subject").val();
-		// var emailMessageValue = jQuery("#email-message").val();
+		var emailMessageValue = jQuery("#email-message").val();
 		var invalidCount = 0;
 
 		if (!emailSubjectValue)
@@ -215,7 +213,7 @@ var tjutilitysendemail = {
 				console.log('Something went wrong.');
 
 				var errormsg = '<div class="alert alert-error alert-danger"><button type="button" data-dismiss="alert" class="close">×</button><h4 class="alert-heading"></h4><div>' + response.message + '</div></div>';
-				jQuery("#builkEmailModal").find("#errorMessage").append(errormsg);
+				jQuery("#bulkEmailModal").find("#errorMessage").append(errormsg);
 				jQuery('#preload').hide();
 			}
 		).done(
@@ -223,7 +221,7 @@ var tjutilitysendemail = {
 				if (index == batchCount)
 				{
 					jQuery('#preload').hide();
-					jQuery('#builkEmailModal').modal('hide');
+					jQuery('#bulkEmailModal').modal('hide');
 
 					 // Remove below line removeclass it is temp added
 					 jQuery("div").find('.tjlms-wrapper').addClass("tjBs3");
