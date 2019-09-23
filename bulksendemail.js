@@ -1,10 +1,30 @@
 /*
- * @version    SVN:<SVN_ID>
- * @package    TJsendemail
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2018 TechJoomla. All rights reserved
- * @license    GNU General Public License version 2, or later
+ * @package     Plg_System_Tjlms
+ * @subpackage  Plg_System_Tjlms
+ *
+ * @author      Techjoomla <extensions@techjoomla.com>
+ * @copyright   Copyright (C) 2009 - 2018 Techjoomla. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
+
+jQuery(document).ready(function() {
+	tjutilitysendemail.tjTdClass = '.td-sendemail';
+	tjutilitysendemail.tjTableId = 'report-table';
+	tjutilitysendemail.initialize();
+
+	var isSendEmail = jQuery('body').find(tjutilitysendemail.tjTdClass).length;
+	if (isSendEmail)
+	{
+			tinymce.init({
+			selector: 'textarea',
+			setup: function (editor) {
+				editor.on('change', function () {
+					tinymce.triggerSave();
+				});
+			}
+		});
+	}
+});
 
 var tjutilitysendemail = {
     initialize: function() {

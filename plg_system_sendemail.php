@@ -1,22 +1,15 @@
 <?php
 /**
- * @version    SVN: <svn_id>
- * @package    Plg_System_Tjlms
- * @copyright  Copyright (C) 2005 - 2014. All rights reserved.
- * @license    GNU General Public License version 2 or later; see LICENSE.txt
- * Shika is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
+ * @package     Plg_System_Tjlms
+ * @subpackage  Plg_System_Tjlms
+ *
+ * @author      Techjoomla <extensions@techjoomla.com>
+ * @copyright   Copyright (C) 2009 - 2018 Techjoomla. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 // No direct access.
 defined('_JEXEC') or die;
-
-jimport('joomla.filesystem.file');
-jimport('joomla.html.parameter');
-jimport('joomla.plugin.plugin');
-jimport('joomla.application.component.helper');
 
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Factory;
@@ -28,9 +21,9 @@ $lang = JFactory::getLanguage();
 $lang->load('plg_system_sendemail', JPATH_ADMINISTRATOR);
 
 /**
- * Methods supporting a list of Tjlms action.
+ * Plugin to send email in a bulk.
  *
- * @since  1.0.0
+ * @since  __DEPLOY_VERSION__
  */
 class PlgSystemplg_System_Sendemail extends JPlugin
 {
@@ -42,7 +35,7 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 	 *
 	 * @retunr  class object
 	 *
-	 * @since  1.0.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function __construct($subject, $config)
 	{
@@ -56,21 +49,7 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 		$document = Factory::getDocument();
 		$document->addScript(JUri::root(true) . '/media/editors/tinymce/tinymce.min.js');
 		$document->addScript(JUri::root(true) . '/plugins/system/plg_system_sendemail/bulksendemail.js');
-		$document->addScriptDeclaration("
-			tinymce.init({
-				selector: 'textarea',
-				setup: function (editor) {
-					editor.on('change', function () {
-						tinymce.triggerSave();
-					});
-				}
-			});
-			jQuery(document).ready(function() {
-				tjutilitysendemail.tjTdClass = '.td-sendemail';
-				tjutilitysendemail.tjTableId = 'report-table';
-				tjutilitysendemail.initialize();
-			});"
-		);
+
 		parent::__construct($subject, $config);
 	}
 
@@ -79,15 +58,15 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 	 *
 	 * @return  none
 	 *
-	 * @since  1.0.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function onAjaxplg_System_Sendemail()
 	{
-		Session::checkToken('post') or die(Text::_('JINVALID_TOKEN_NOTICE'));
+		Session::checkToken('post') or new JResponseJson(null, Text::_('JINVALID_TOKEN_NOTICE'), true);
 
 		if (!Factory::getUser()->id)
 		{
-			echo new JResponseJson(null, Text::_('JERROR_ALERTNOAUTHOR'), true, true);
+			echo new JResponseJson(null, Text::_('JERROR_ALERTNOAUTHOR'), true);
 			jexit();
 		}
 
@@ -97,7 +76,7 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 
 		if (!$ccMail)
 		{
-			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ERROR_NO_FROMEMAIL'), true, true);
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ERROR_NO_FROMEMAIL'), true);
 
 			jexit();
 		}
@@ -105,46 +84,44 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 		$templateData = $app->input->post->get('template', '', 'array');
 		$emails = $app->input->post->get('emails', '', 'array');
 
-		if (!empty($emails))
+		if (empty($emails))
 		{
-			try
-			{
-				// Remove duplicate emails
-				$emails = array_unique($emails);
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ADD_RECIPIENTS_OR_CHECK_PREFERENCES'), true);
 
-				// The mail subject.
-				$emailSubject = $templateData['subject'];
-
-				// The mail body.
-				$emailBody = $templateData['message'];
-
-				foreach ($emails as $singleEmail)
-				{
-					// Send Email
-					Factory::getMailer()->sendMail(
-						$config->get('mailfrom'),
-						$config->get('fromname'),
-						trim($singleEmail),
-						$emailSubject,
-						$emailBody,
-						true
-					);
-				}
-
-				echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_SUCCESSFULLY_SEND'), false, true);
-
-				jexit();
-			}
-			catch (Exception $e)
-			{
-				echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ERROR'), true, true);
-
-				jexit();
-			}
+			jexit();
 		}
-		else
+
+		try
 		{
-			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ADD_RECIPIENTS_OR_CHECK_PREFERENCES'), true, true);
+			// Remove duplicate emails
+			$emails = array_unique($emails);
+
+			// The mail subject.
+			$emailSubject = $templateData['subject'];
+
+			// The mail body.
+			$emailBody = $templateData['message'];
+
+			foreach ($emails as $singleEmail)
+			{
+				// Send Email
+				Factory::getMailer()->sendMail(
+					$config->get('mailfrom'),
+					$config->get('fromname'),
+					trim($singleEmail),
+					$emailSubject,
+					$emailBody,
+					true
+				);
+			}
+
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_SUCCESSFULLY_SEND'), false);
+
+			jexit();
+		}
+		catch (Exception $e)
+		{
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ERROR'), true);
 
 			jexit();
 		}
