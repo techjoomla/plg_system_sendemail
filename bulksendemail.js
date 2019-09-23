@@ -55,7 +55,7 @@ var tjutilitysendemail = {
 	},
 	btnSendEmail: function () {
 		try {
-			let btnHtml = '<div class="btn-wrapper" id="tj-sendemail" style="float: right;">';
+			let btnHtml = '<div class="btn-wrapper" id="tj-sendemail">';
 					btnHtml += '<button type="button" class="btn btn-primary" id="email-queue-column" data-toggle="modal" data-target="#bulkEmailModal" onclick="tjutilitysendemail.openEmailPopup();">';
 						btnHtml += Joomla.JText._('PLG_SYSTEM_SENDEMAIL_BTN') ;
 					btnHtml += '</button>';
