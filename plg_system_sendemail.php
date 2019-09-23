@@ -46,10 +46,6 @@ class PlgSystemplg_System_Sendemail extends JPlugin
 		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_BODY_MESSAGE');
 		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_SEND_BTN');
 
-		$document = Factory::getDocument();
-		$document->addScript(JUri::root(true) . '/media/editors/tinymce/tinymce.min.js');
-		$document->addScript(JUri::root(true) . '/plugins/system/plg_system_sendemail/bulksendemail.js');
-
 		parent::__construct($subject, $config);
 	}
 

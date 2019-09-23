@@ -71,6 +71,9 @@ var tjutilitysendemail = {
 	openEmailPopup: function () {
 		try {
 
+			var emailSubject = 'email-subject';
+			var emailMessage = 'email-message';
+
 			if (document.adminForm.boxchecked.value==0)
 			{
 				alert(Joomla.JText._('PLG_SYSTEM_SENDEMAIL_SELECT_CHECKBOX'));
@@ -109,7 +112,7 @@ var tjutilitysendemail = {
 														modelEmail += '</div>';
 
 														modelEmail += '<div class="controls">';
-															modelEmail += '<input type="text" name="template[subject]" id="email-subject" value="" class="required" required="required" aria-required="true">';
+															modelEmail += '<input type="text" name="template[subject]" id="' + emailSubject + '" value="" class="required" required="required" aria-required="true">';
 														modelEmail += '</div>';
 													modelEmail += '</div>';
 													modelEmail += '<div class="control-group">';
@@ -119,7 +122,7 @@ var tjutilitysendemail = {
 															modelEmail += '</label>';
 														modelEmail += '</div>';
 														modelEmail += '<div class="controls">';
-															modelEmail += '<textarea name="template[message]" rows="7" style="width: 30%;" id="email-message" value="" class="required" required="required" aria-required="true"></textarea>';
+															modelEmail += '<textarea name="template[message]" rows="7" style="width: 30%;" id="'+ emailMessage + '" value="" class="required" required="required" aria-required="true"></textarea>';
 														modelEmail += '</div>';
 													modelEmail += '</div>';
 												modelEmail += '</div>';
@@ -129,7 +132,7 @@ var tjutilitysendemail = {
 									modelEmail += '</form>';
 								modelEmail += '</div>';
 								modelEmail += '<div class="modal-footer">';
-									modelEmail += '<button type="button" class="btn btn-primary validate" id="send-email" onclick="tjutilitysendemail.sendEmailToUser();">' + Joomla.JText._('PLG_SYSTEM_SENDEMAIL_POPUP_SEND_BTN') + '</button>';
+									modelEmail += '<button type="button" class="btn btn-primary validate" id="send-email" onclick="tjutilitysendemail.validate();">' + Joomla.JText._('PLG_SYSTEM_SENDEMAIL_POPUP_SEND_BTN') + '</button>';
 								modelEmail += '</div>';
 						modelEmail += '</div>';
 					modelEmail += '</div>';
@@ -140,8 +143,8 @@ var tjutilitysendemail = {
 
 			jQuery('div').find("#preload").hide();
 			jQuery('div').find("#send-email").attr("disabled", false);
-			jQuery("#email-subject").val('');
-			jQuery("#email-message").val('');
+			jQuery("#" + emailSubject).val('');
+			jQuery("#" + emailMessage).val('');
 
 			var values = new Array();
 			jQuery("#emailsDiv").empty();
@@ -162,7 +165,7 @@ var tjutilitysendemail = {
 			/*console.log(err.message);*/
 		}
 	},
-	sendEmailToUser: function () {
+	validate: function () {
 
 		jQuery('textarea').each(function (index, ta) {
 			var $ta = jQuery(ta);
@@ -218,10 +221,10 @@ var tjutilitysendemail = {
 			var emailData = batch.concat(emailContent);
 
 			// Call the send email function
-			tjutilitysendemail.tjSendEmail(emailData, i, batchCount);
+			tjutilitysendemail.send(emailData, i, batchCount);
 		});
 	},
-	tjSendEmail: function (emailData, index, batchCount) {
+	send: function (emailData, index, batchCount) {
 		index ++;
 
 		var url = "index.php?option=com_ajax&plugin=plg_System_Sendemail&format=json";
