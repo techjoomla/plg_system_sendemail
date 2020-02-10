@@ -1,9 +1,9 @@
 /*
- * @package     Plg_System_Tjlms
- * @subpackage  Plg_System_Tjlms
+ * @package     Tjreports.Plugins
+ * @subpackage  Plugins,system,plg_system_sendemail
  *
  * @author      Techjoomla <extensions@techjoomla.com>
- * @copyright   Copyright (C) 2009 - 2018 Techjoomla. All rights reserved.
+ * @copyright   Copyright (C) 2009 - 2020 Techjoomla. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -15,18 +15,22 @@ jQuery(document).ready(function() {
 	var isSendEmail = jQuery('body').find(tjutilitysendemail.tjTdClass).length;
 	if (isSendEmail)
 	{
-			tinymce.init({
-			selector: 'textarea',
+		tjutilitysendemail.loadTinymce();
+	}
+});
+
+var tjutilitysendemail = {
+    loadTinymce: function() {
+		tinymce.remove();
+		tinymce.init({
+			selector: 'textarea#email-message',
 			setup: function (editor) {
 				editor.on('change', function () {
 					tinymce.triggerSave();
 				});
 			}
 		});
-	}
-});
-
-var tjutilitysendemail = {
+	},
     initialize: function() {
 		var isSendEmail = jQuery('body').find(tjutilitysendemail.tjTdClass).length;
 		var isCheckboxes = jQuery('body').find('input[name="cid[]"]').length;
@@ -61,8 +65,8 @@ var tjutilitysendemail = {
 					btnHtml += '</button>';
 				btnHtml += '</div>';
 
-			jQuery('#toolbar').append(btnHtml);
-
+			// jQuery('#toolbar').append(btnHtml);
+			jQuery('#sendEmail').append(btnHtml);
 		}
 		catch (err) {
 			/*console.log(err.message);*/
@@ -70,6 +74,7 @@ var tjutilitysendemail = {
 	},
 	openEmailPopup: function () {
 		try {
+			tjutilitysendemail.loadTinymce();
 
 			var emailSubject = 'email-subject';
 			var emailMessage = 'email-message';
@@ -83,27 +88,21 @@ var tjutilitysendemail = {
 			// Remove below line removeclass it is temp added
 			jQuery("div").find('.tjlms-wrapper').removeClass("tjBs3");
 
-			var modelEmail = '<div id="bulkEmailModal" class="emailModal modal fade" role="dialog">';
-					modelEmail += '<div class="modal-dialog">';
-						modelEmail += '<div class="modal-content">';
-						modelEmail += '<div id="preload"><img src="http://i.imgur.com/KUJoe.gif"></div>';
+			var modelEmail = '<div id="bulkEmailModal" class="custom-modal modal fade" role="dialog">';
+					modelEmail += '<div class="modal-dialog modal-lg">';
+						modelEmail += '<div class="modal-content is-progress" id="emailPopup">';
+						modelEmail += '<div id="preload"></div>';
 								modelEmail += '<div class="modal-header">';
-									modelEmail += '<div class="row-fluid">';
-										modelEmail += '<div class="span10">';
-											modelEmail += '<h5 class="modal-title" id="exampleModalLabel">' + Joomla.JText._('PLG_SYSTEM_SENDEMAIL_POPUP_HEADING') + '</h5>';
-										modelEmail += '</div>';
-										modelEmail += '<div class="span2">';
-											modelEmail += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
-										modelEmail += '</div>';
-									modelEmail += '</div>';
+										modelEmail += '<h5 class="modal-title d-inline-block fs-18 font-600" id="exampleModalLabel">' + Joomla.JText._('PLG_SYSTEM_SENDEMAIL_POPUP_HEADING') + '</h5>';
+										modelEmail += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
 									modelEmail += '<span id="errorMessage"></span>';
 								modelEmail += '</div>';
 
 								modelEmail += '<div class="modal-body">';
 									modelEmail += '<div class="container-fluid">';
 										modelEmail += '<form action="#" method="post" enctype="multipart/form-data" name="emailTemplateForm" id="emailTemplateForm" class="form-validate">';
-											modelEmail += '<div class="row-fluid">';
-												modelEmail += '<div class="span12">';
+											modelEmail += '<div class="row">';
+												modelEmail += '<div class="col-sm-12">';
 													modelEmail += '<div class="control-group">';
 														modelEmail += '<div class="control-label">';
 															modelEmail += '<label id="email-subject-label" for="email-subject" class="hasPopover required" title="" >';
@@ -112,7 +111,7 @@ var tjutilitysendemail = {
 														modelEmail += '</div>';
 
 														modelEmail += '<div class="controls">';
-															modelEmail += '<input type="text" name="template[subject]" id="' + emailSubject + '" value="" class="required" required="required" aria-required="true">';
+															modelEmail += '<input type="text" name="template[subject]" id="' + emailSubject + '" value="" class="required w-100" required="required" aria-required="true">';
 														modelEmail += '</div>';
 													modelEmail += '</div>';
 													modelEmail += '<div class="control-group">';
@@ -139,12 +138,15 @@ var tjutilitysendemail = {
 				modelEmail += '</div>';
 
 			// Confirm this class to append popup
-			jQuery('#j-main-container').append(modelEmail);
+			if (!jQuery("#bulkEmailModal").hasClass("custom-modal"))
+			{
+				jQuery('#j-main-container').append(modelEmail);
+			}
 
 			jQuery('div').find("#preload").hide();
+			jQuery('div').find(".is-progress").removeClass('is-progress');
 			jQuery('div').find("#send-email").attr("disabled", false);
 			jQuery("#" + emailSubject).val('');
-			jQuery("#" + emailMessage).val('');
 
 			var values = new Array();
 			jQuery("#emailsDiv").empty();
@@ -162,42 +164,44 @@ var tjutilitysendemail = {
 			// alert(values.join (", "));
 		}
 		catch (err) {
+			alert(err.message);
 			/*console.log(err.message);*/
 		}
 	},
 	validate: function () {
 
-		jQuery('textarea').each(function (index, ta) {
-			var $ta = jQuery(ta);
-			var emailMessageValue = $ta.val();
-		});
-
 		var emailSubjectValue = jQuery("#email-subject").val();
 		var emailMessageValue = jQuery("#email-message").val();
-		var invalidCount = 0;
+		jQuery('#email-subject').removeClass("invalid");
+		jQuery('#email-subject-label').removeClass("invalid");
 
-		if (!emailSubjectValue)
+		jQuery("#errorMessage").empty();
+
+		if (!emailSubjectValue || !emailMessageValue)
 		{
-			invalidCount = 1;
+			if (!emailSubjectValue)
+			{
+				jQuery('#email-subject').addClass("invalid");
+				jQuery('#email-subject-label').addClass("invalid");
 
-			jQuery('#email-subject').addClass("invalid");
-			jQuery('#email-subject-label').addClass("invalid");
-		}
+				var errormsg = '<div class="alert alert-error alert-danger"><button type="button" data-dismiss="alert" class="close">×</button><h4 class="alert-heading"></h4><div>Field required: Subject</div></div>';
+				jQuery("#bulkEmailModal").find("#errorMessage").append(errormsg);
+			}
 
-		if (!emailMessageValue)
-		{
-			invalidCount = 1;
+			if (!emailMessageValue)
+			{
+				jQuery('#email-message').addClass("invalid");
+				jQuery('#email-message-label').addClass("invalid");
 
-			jQuery('#email-message').addClass("invalid");
-			jQuery('#email-message-label').addClass("invalid");
-		}
+				var errormsg = '<div class="alert alert-error alert-danger"><button type="button" data-dismiss="alert" class="close">×</button><h4 class="alert-heading"></h4><div>Field required: Message</div></div>';
+				jQuery("#bulkEmailModal").find("#errorMessage").append(errormsg);
+			}
 
-		if (invalidCount)
-		{
 			return false;
 		}
 
 		jQuery('#preload').show();
+		jQuery('div').find("#emailPopup").addClass('is-progress');
 		jQuery('#send-email').attr("disabled", true);
 		var chunk_size = 5;
 
@@ -227,34 +231,38 @@ var tjutilitysendemail = {
 	send: function (emailData, index, batchCount) {
 		index ++;
 
-		var url = "index.php?option=com_ajax&plugin=plg_System_Sendemail&format=json";
+		var url = Joomla.getOptions('system.paths').base + "/index.php?option=com_ajax&plugin=tjsendemail&format=json";
 
 		var promise = jQuery.ajax({url: url, type: 'POST', async:true, data:emailData,dataType: 'json'});
 
 		promise.fail(
 			function(response) {
-				console.log('Something went wrong.');
 
-				var errormsg = '<div class="alert alert-error alert-danger"><button type="button" data-dismiss="alert" class="close">×</button><h4 class="alert-heading"></h4><div>' + response.message + '</div></div>';
+				var errormsg = '<div class="alert alert-error alert-danger"><button type="button" data-dismiss="alert" class="close">×</button><h4 class="alert-heading"></h4><div>' + response.responseText + '</div></div>';
 				jQuery("#bulkEmailModal").find("#errorMessage").append(errormsg);
 				jQuery('#preload').hide();
 			}
 		).done(
 			function(response) {
+
 				if (index == batchCount)
 				{
 					jQuery('#preload').hide();
+					jQuery('div').find(".is-progress").removeClass('is-progress');
 					jQuery('#bulkEmailModal').modal('hide');
 
 					 // Remove below line removeclass it is temp added
 					 jQuery("div").find('.tjlms-wrapper').addClass("tjBs3");
 
-					 Joomla.renderMessages({"success":[response.message]});
+					 if (response.success)
+					 {
+						Joomla.renderMessages({"success":[response.message]});
+					 }
+					 else
+					 {
+						Joomla.renderMessages({"error":[response.message]});
+					 }
 				}
-			}
-		).always(
-			function(response) {
-				// console.log('response always.' , response);
 			}
 		);
 	}
