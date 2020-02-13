@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.0"  type="plugin" group="system" method="upgrade">
-	<name>PLG_SYSTEM_SENDEMAIL_PLUGINNAME</name>
+	<name>PLG_SYSTEM_TJSENDEMAIL</name>
 	<author>Techjoomla</author>
 	<authorEmail>extensions@techjoomla.com</authorEmail>
 	<authorUrl>https://techjoomla.com</authorUrl>
-	<copyright>Copyright (C) 2014 - 2019 Techjoomla. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2014 - 2020 Techjoomla. All rights reserved.</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-	<creationDate>16th Sep 2019</creationDate>
+	<creationDate>13th Feb 2020</creationDate>
 	<version>1.0.0</version>
-	<description>PLG_SYSTEM_SENDEMAIL_DESCRIPTION</description>
+	<description>PLG_SYSTEM_TJSENDEMAIL_DESCRIPTION</description>
 
 	<files>
 		<filename plugin="tjsendemail">tjsendemail.php</filename>
-		<filename>bulksendemail.js</filename>
+		<folder>assets</folder>
 	</files>
 
 	<languages folder="language">

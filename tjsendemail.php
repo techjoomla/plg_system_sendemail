@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Tjreports.Plugins
- * @subpackage  Plugins,system,plg_system_sendemail
+ * @package     System.Plugins
+ * @subpackage  Plugins,system,tjsendemail
  *
  * @author      Techjoomla <extensions@techjoomla.com>
  * @copyright   Copyright (C) 2009 - 2020 Techjoomla. All rights reserved.
@@ -14,11 +14,9 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Session\Session;
+use Joomla\CMS\HTML\HTMLHelper;
 
 JHtml::_('jquery.token');
-
-$lang = JFactory::getLanguage();
-$lang->load('plg_system_tjsendemail', JPATH_ADMINISTRATOR);
 
 /**
  * Plugin to send email in a bulk.
@@ -27,6 +25,14 @@ $lang->load('plg_system_tjsendemail', JPATH_ADMINISTRATOR);
  */
 class PlgSystemTjSendemail extends JPlugin
 {
+	/**
+	 * Load the language file on instantiation.
+	 *
+	 * @var    boolean
+	 * @since  1.0
+	 */
+	protected $autoloadLanguage = true;
+
 	/**
 	 * Constructor - Function used as a contructor
 	 *
@@ -39,45 +45,17 @@ class PlgSystemTjSendemail extends JPlugin
 	 */
 	public function __construct($subject, $config)
 	{
-		Text::script('PLG_SYSTEM_SENDEMAIL_BTN');
-		Text::script('PLG_SYSTEM_SENDEMAIL_SELECT_CHECKBOX');
-		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_HEADING');
-		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_SUBJECT');
-		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_EMAIL_BODY_MESSAGE');
-		Text::script('PLG_SYSTEM_SENDEMAIL_POPUP_SEND_BTN');
-
-		$document = Factory::getDocument();
-
-		$style = '.is-progress {
-		background-color: #EEF2F6;
-		cursor: not-allowed;
-		z-index: 5;
-		opacity: 0.6;
-		-webkit-transition: background-color 500ms ease-out 1s;
-		-moz-transition: background-color 500ms ease-out 1s;
-		-o-transition: background-color 500ms ease-out 1s;
-		transition: background-color 500ms ease-out 1s;
-		position: relative;
-
-		}
-
-		.is-progress:before {
-		font-family: "FontAwesome";
-		content: "\f110";
-		position: absolute;
-		z-index:1040;
-		left: 50%;
-		top: 50%;
-		font-size: 45px;
-		color: #1664bd;
-		-webkit-animation: fa-spin 2s infinite linear;
-		animation: fa-spin 2s infinite linear;
-		transform: translate(-50%, -50%);
-		text-align: center;
-		}';
-		$document->addStyleDeclaration($style);
-
 		parent::__construct($subject, $config);
+
+		Text::script('PLG_SYSTEM_TJSENDEMAIL_BTN');
+		Text::script('PLG_SYSTEM_TJSENDEMAIL_SELECT_CHECKBOX');
+		Text::script('PLG_SYSTEM_TJSENDEMAIL_POPUP_HEADING');
+		Text::script('PLG_SYSTEM_TJSENDEMAIL_POPUP_EMAIL_SUBJECT');
+		Text::script('PLG_SYSTEM_TJSENDEMAIL_POPUP_EMAIL_BODY_MESSAGE');
+		Text::script('PLG_SYSTEM_TJSENDEMAIL_POPUP_SEND_BTN');
+		Text::script('PLG_SYSTEM_TJSENDEMAIL_INVALID_FIELD');
+
+		HTMLHelper::stylesheet('plugins/system/tjsendemail/bulksendemail.min.css');
 	}
 
 	/**
@@ -94,7 +72,7 @@ class PlgSystemTjSendemail extends JPlugin
 		// Add logs
 		JLog::addLogger(
 			array(
-				'text_file' => 'sendEmail.logs.php'
+				'text_file' => 'tjsendemail.log.php'
 			)
 		);
 
@@ -106,11 +84,10 @@ class PlgSystemTjSendemail extends JPlugin
 
 		$app = Factory::getApplication();
 		$config = Factory::getConfig();
-		$ccMail = $config->get('mailfrom');
 
-		if (!$ccMail)
+		if (!$config->get('mailfrom'))
 		{
-			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ERROR_NO_FROMEMAIL'), true);
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_TJSENDEMAIL_ERROR_NO_FROMEMAIL'), true);
 
 			jexit();
 		}
@@ -120,7 +97,7 @@ class PlgSystemTjSendemail extends JPlugin
 
 		if (empty($emails))
 		{
-			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ADD_RECIPIENTS_OR_CHECK_PREFERENCES'), true);
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_TJSENDEMAIL_ADD_RECIPIENTS_OR_CHECK_PREFERENCES'), true);
 
 			jexit();
 		}
@@ -147,27 +124,27 @@ class PlgSystemTjSendemail extends JPlugin
 				if ($return !== true)
 				{
 					$failCnt++;
-					JLog::add(Text::sprintf('PLG_SYSTEM_SENDEMAIL_FAIL_TO_SENDEMAIL', $singleEmail, $return->get("message")));
+					JLog::add(Text::sprintf('PLG_SYSTEM_TJSENDEMAIL_FAIL_TO_SENDEMAIL', $singleEmail, $return->get("message")));
 				}
 				else
 				{
 					$successCnt++;
-					JLog::add(Text::sprintf('PLG_SYSTEM_SENDEMAIL_SUCCESSFULLY_SENDEMAIL', $singleEmail));
+					JLog::add(Text::sprintf('PLG_SYSTEM_TJSENDEMAIL_SUCCESSFULLY_SENDEMAIL', $singleEmail));
 				}
 			}
 
 			if ($failCnt == 0)
 			{
-				$msg = Text::_('PLG_SYSTEM_SENDEMAIL_SUCCESSFULLY_SEND_ALL');
+				$msg = Text::_('PLG_SYSTEM_TJSENDEMAIL_SUCCESSFULLY_SEND_ALL');
 			}
-			else if ($successCnt == 0)
+			elseif ($successCnt == 0)
 			{
-				$msg = Text::_('PLG_SYSTEM_SENDEMAIL_FAIL_TO_SENDEMAIL_ALL');
-				$errorFlag =  true;
+				$msg = Text::_('PLG_SYSTEM_TJSENDEMAIL_FAIL_TO_SENDEMAIL_ALL');
+				$errorFlag = true;
 			}
 			else
 			{
-				$msg = Text::_('PLG_SYSTEM_SENDEMAIL_OUTPUT', $successCnt, $failCnt);
+				$msg = Text::_('PLG_SYSTEM_TJSENDEMAIL_OUTPUT', $successCnt, $failCnt);
 			}
 
 			echo new JResponseJson(null, $msg, $errorFlag);
@@ -176,7 +153,7 @@ class PlgSystemTjSendemail extends JPlugin
 		}
 		catch (Exception $e)
 		{
-			echo new JResponseJson(null, Text::_('PLG_SYSTEM_SENDEMAIL_ERROR'), true);
+			echo new JResponseJson(null, Text::_('PLG_SYSTEM_TJSENDEMAIL_ERROR'), true);
 
 			jexit();
 		}
